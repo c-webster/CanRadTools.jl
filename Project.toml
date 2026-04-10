@@ -1,6 +1,6 @@
 name = "CanRadTools"
 uuid = "716d4ec4-4a15-4984-957d-029158ab0e3f"
-version = "1.0.0-DEV"
+version = "0.0.2"
 authors = ["Clare Webster"]
 
 [deps]

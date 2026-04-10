@@ -18,12 +18,15 @@ Nothing. The function writes grid points to a delimited text file.
 Output values are in the same coordinate system as the input limits.
 Output values are whole numbers, so any decimal values in the limits are rounded down for minimums and rounded up for maximums.
 
-# Requirements
-DelimitedFiles.jl package is required to read the input file and write the output file.
+# Assumptions
+Assumes `xmin`, `xmax`, `ymin`, and `ymax` define the outer boundaries of the defined domain.
+Grid points are placed at the centres of cells, i.e.
+`xmin + spacing/2 : spacing : xmax - spacing/2`.
 
 # Details
 Generates a regular grid of points by creating linearly spaced coordinates in x and y dimensions
-with the specified spacing. All combinations of x and y coordinates are created, resulting in a
+with the specified spacing. 
+All combinations of x and y coordinates are created, resulting in a
 rectangular grid pattern. The grid points are saved to a file named `{taskID}_gridpts.txt`.
 
 # Example
@@ -31,8 +34,8 @@ rectangular grid pattern. The grid points are saved to a file named `{taskID}_gr
 """
 function create_gridpts(xmin::Float64,xmax::Float64,ymin::Float64,ymax::Float64,spacing::Number,buffer::Number=0.0,taskID::String="task",outdir::String=".")
 
-    xpts = collect(xmin:spacing:xmax)
-    ypts = collect(ymin:spacing:ymax)
+    xpts = collect(xmin+spacing/2:spacing:xmax-spacing/2)
+    ypts = collect(ymin+spacing/2:spacing:ymax-spacing/2)
     gridpts = [(x,y) for x in xpts for y in ypts]
 
     outpath = joinpath(outdir,"$(taskID)_gridpts.txt")
@@ -60,7 +63,7 @@ Nothing. The function writes grid points to a delimited text file.
 Output values are in the same coordinate system as the input limits.
 
 # Requirements
-DelimitedFiles.jl package is required to read the input file and write the output file.
+
 
 """
 function create_gridpts_from_coord(xvalue::Float64,yvalue::Float64,spacing::Float64,buffer::Float64,taskID::String="task",outdir::String=".",delim::String="tab")
@@ -92,13 +95,15 @@ Create a regular grid of points based on limits defined in an input file and sav
 - `outdir::String`: Output directory path (default: current directory ".")
 - `buffer::Float64`: Optional buffer to add (positive) or subtract (negative) from the limits (default: 0)
 
+# Assumptions
+Assumes the coordinates in `infile` define the outer boundaries of the defined domain.
+Grid points are placed at the centres of cells, i.e.
+`xmin + spacing/2 : spacing : xmax - spacing/2`.
+
 # Returns
 Nothing. The function writes grid points to a delimited text file.
 Output values are in the same coordinate system as the input limits.
 Output values are whole numbers, so any decimal values in the limits are rounded down for minimums and rounded up for maximums.
-
-# Requirements
-DelimitedFiles.jl package is required to read the input file and write the output file.
 
 # Details
 The function reads an input file that can be in one of two formats:
@@ -144,8 +149,8 @@ function create_gridpts_from_file(infile::String,spacing::Float64,taskID::String
         ymax = pts[1,4] - buffer
     end
 
-    xpts = collect(xmin:spacing:xmax)
-    ypts = collect(ymin:spacing:ymax)
+    xpts = collect(xvalue-buffer:spacing:xvalue+buffer)
+    ypts = collect(yvalue-buffer:spacing:yvalue+buffer)
     gridpts = [(x,y) for x in xpts for y in ypts]
 
     outpath = joinpath(outdir,"$(taskID)_gridpts.txt")
@@ -170,9 +175,6 @@ Nothing. The function writes grid points to a delimited text file.
 Output values are in the same coordinate system as the input limits.
 Output values are whole numbers, so any decimal values in the limits are rounded down for minimums and rounded up for maximums.
 
-# Requirements
-ArchGDAL.jl package is required to read the raster file and extract its spatial extent.
-DelimitedFiles.jl package is required to write the output file.
 
 # Details
 The function reads the spatial extent of the input raster file using ArchGDAL, applies an optional buffer to the limits.
