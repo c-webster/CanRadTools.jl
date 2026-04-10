@@ -1,9 +1,19 @@
 name = "CanRadTools"
 uuid = "716d4ec4-4a15-4984-957d-029158ab0e3f"
-authors = ["Clare Webster"]
 version = "1.0.0-DEV"
+authors = ["Clare Webster"]
+
+[deps]
+ArchGDAL = "c9ce4bd3-c3d5-55b8-8973-c0e20141b8c3"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [compat]
+ArchGDAL = "0.10.11"
+DelimitedFiles = "1.9.1"
+NCDatasets = "0.14.15"
+Plots = "1.41.6"
 julia = "1.10.10"
 
 [extras]
