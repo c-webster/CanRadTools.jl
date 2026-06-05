@@ -4,6 +4,7 @@ using DelimitedFiles, NCDatasets, ArchGDAL, Plots
 
 include("plot_tools.jl")
 include("prep_tools.jl")
+include("output_tools.jl")
 
 export
     check_var_name!,

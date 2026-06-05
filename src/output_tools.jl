@@ -131,6 +131,7 @@ All files must have the same variables
 
 Assumptions:
 - point spacing is consistent across the grid
+- a time-varying variable (tvt/swr) is in the dataset 
 
 Arguments:
 - `allfiles::Vector{String}`: A vector of file paths to the input NetCDF files.
