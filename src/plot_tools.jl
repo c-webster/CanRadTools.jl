@@ -1,5 +1,5 @@
 """
-    plot_static_variable(infile::String,vf_name::String="vf_planar",outfiletype::String="png",timestamp::String=nothing,outdir::String=nothing)
+    plot_static_variable(infile::String;vf_name::String="vf_planar",outfiletype::String="png",timestamp::String=nothing,outdir::String=nothing)
 
 Creates a geotiff or .png file of the specifed variable. 
 If the variable is time varying (tvt or swr), then the timestamp must be supplied

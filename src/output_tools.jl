@@ -131,6 +131,7 @@ All files must have the same variables
 
 Assumptions:
 - point spacing is consistent across the grid
+- all variables have the same number of data points
 - a time-varying variable (tvt/swr) is in the dataset 
 
 Arguments:
@@ -236,7 +237,7 @@ function create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{S
     close(ds0)
 
 
-    for t in allfiles[1:end-3]
+    for t in allfiles[1:end]
 
             tds = NCDataset(t)
 
