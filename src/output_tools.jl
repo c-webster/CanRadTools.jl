@@ -277,7 +277,7 @@ function create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{S
             end
 
             close(tds)
-            println("loaded data from $(t)")
+            # println("loaded data from $(t)")
     end
 
     # get information for creating the new grid structure
@@ -313,7 +313,7 @@ function create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{S
 
     # rearrange the data and save to the output file
 
-    println("creating gridded file at "*outputfile)
+    # println("creating gridded file at "*outputfile)
 
     ds_out = NCDataset(outputfile,"c",format=:netcdf4_classic)
     defDim(ds_out,"locX",numpts_x); defDim(ds_out,"locY",numpts_y)
