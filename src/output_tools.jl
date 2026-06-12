@@ -119,7 +119,8 @@ end
 
 
 """
-    create_grid_from_multiple_files(infile::String)
+    create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{String,Any};outfile::String="",
+                                        pt_spacing::Int64=0,grid_dimension::Int64=0,lowerleftcorr::String="")
 
 
 Takes a list of output files from CanRad (created using `createfiles`) and creates a grid of points based on the coordinates in all the files.
@@ -138,7 +139,10 @@ Arguments:
 - `allfiles::Vector{String}`: A vector of file paths to the input NetCDF files.
     e.g. obtained from `glob(joinpath(exdir,"*","*","*.nc"))` where `exdir` is the directory containing the output from CanRad.
 - `par_in::Dict{String, Any}`: The parameters dictionary used in the CanRad runs. This is used to determine which variables are present and to set attributes in the output file.
-- `outfile::String`: Optional. The path to the output NetCDF file. If not provided, a default name is generated.
+- `outfile::String`: Optional. The path to the output NetCDF file. If not provided, a default name is generated from the grandparent directory of the first item in `allfiles`
+- `pt_spacing::Int64`: Optional. The spacing between points in the output grid. If 0 (default), the spacing is determined from the input files.
+- `grid_dimension::Int64`: Optional. The x/y dimension of the output grid (in m - assume square grid). If 0 (default), the dimension is taken from the min/max coordinates in the input files.
+- `lowerleftcorr::String`: Optional. A string to include the lower left coordinates of the grid. Format "XXXX_YYYY". 
 
 Note that depending on the number of total points and/or the variables, this can take some time to run and can use a lot of memory. 
 
@@ -147,10 +151,11 @@ See examples/gridded in CanRad repository of example usage
 
 """
 
-function create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{String, Any},outfile::String="")
+function create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{String, Any};outfile::String=""
+                                        pt_spacing::Int64=0,grid_dimension::Int64=0,lowerleftcorr::String="")
 
     if outfile == ""
-        outputfile = split(allfiles[1],"/")[1]*"_gridded.nc"
+        outputfile = joinpath(dirname(dirname(dirname(allfiles[1]))), "Output_$(basename(dirname(dirname(allfiles[1])))).nc")
     else
         outputfile = outfile
     end
@@ -286,29 +291,44 @@ function create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{S
     p = sortperm(view.(Ref(B), 1:size(B,1), :))
     # p = sortperm(Tuple.(eachrow(B)))
 
-    # now reorder to grid format
-    @assert size(unique(diff(sort(unique(east)))))[1] == 1 "spacing between points inconsistent in x dimension"
-    @assert size(unique(diff(sort(unique(north)))))[1] == 1 "spacing between points inconsistent in y dimension"
+    if pt_spacing == 0
+        pt_spacing_x = diff(sort(unique(east)))[1]
+        pt_spacing_y = diff(sort(unique(north)))[1]
+    else
+        pt_spacing_x = pt_spacing
+        pt_spacing_y = pt_spacing
+    end
 
-    pt_spacing_x = diff(sort(unique(east)))[1]
-    pt_spacing_y = diff(sort(unique(north)))[1]
-
-    xvals = sort(unique(east))
-    yvals = sort(unique(north))
-
-    numpts_x = length(xvals)
-    numpts_y = length(yvals)
-
-    full_grid_size = length(xvals) * length(yvals)
+    if grid_dimension == 0
+        numpts_x = length(east)
+        numpts_y = length(north)
+        full_grid_size = numpts_x * numpts_y
+        grid_control = false
+    else
+        numpts_x = div(grid_dimension,pt_spacing)
+        numpts_y = div(grid_dimension,pt_spacing)
+        full_grid_size = numpts_x * numpts_y
+        grid_control = true
+    end
 
     if full_grid_size != size(B,1)
+        if grid_control # define the larger grid
+            xll, yll = parse.(Float64, split(lowerleftcorr, "_"))
+            # full grid should be centre cell coordinates, not lower left
+            xll += (pt_spacing_x/2) # get centre of grid cell
+            yll += (pt_spacing_y/2) # get centre of grid cell
+            xur = xll + grid_dimension - pt_spacing/2
+            yur = yll + grid_dimension - pt_spacing/2
+            # replace east and north with the full grid
+            east = xll:pt_spacing_x:xur
+            north = yll:pt_spacing_y:yur
+        end
         full_grid = reduce(vcat, [[x y] for x in minimum(east):pt_spacing_x:maximum(east) for y in minimum(north):pt_spacing_y:maximum(north)])
         bset = Set(Tuple.(eachrow(B)))
         locs = [Tuple(r) in bset for r in eachrow(full_grid)]
     else
         locs = trues(size(B,1))
     end
-
     numptsvec = size(locs,1)
 
     # rearrange the data and save to the output file
