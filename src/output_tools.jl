@@ -151,7 +151,7 @@ See examples/gridded in CanRad repository of example usage
 
 """
 
-function create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{String, Any};outfile::String=""
+function create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{String, Any};outfile::String="",
                                         pt_spacing::Int64=0,grid_dimension::Int64=0,lowerleftcorr::String="")
 
     if outfile == ""
