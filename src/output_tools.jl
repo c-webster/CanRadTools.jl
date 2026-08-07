@@ -300,8 +300,8 @@ function create_grid_from_multiple_files(allfiles::Vector{String},par_in::Dict{S
     end
 
     if grid_dimension == 0
-        numpts_x = length(east)
-        numpts_y = length(north)
+        numpts_x = length(unique(east))
+        numpts_y = length(unique(north))
         full_grid_size = numpts_x * numpts_y
         grid_control = false
     else
